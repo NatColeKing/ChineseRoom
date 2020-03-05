@@ -8,9 +8,6 @@ using System;
 using System.Reflection;
 #endif
 
-namespace OVR
-{
-
 public enum PreloadSounds {
 	Default,		// default unity behavior
 	Preload,		// audio clips are forced to preload
@@ -426,4 +423,3 @@ public partial class AudioManager : MonoBehaviour {
 #endif
 }
 
-} // namespace OVR

@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
-namespace OVR
-{
-
 /*
 -----------------------
 
@@ -59,4 +56,3 @@ public class SoundFXRefPropertyDrawer : PropertyDrawer {
 	}
 }
 
-} // namespace OVR

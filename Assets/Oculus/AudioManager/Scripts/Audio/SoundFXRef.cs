@@ -1,9 +1,6 @@
 using UnityEngine;
 using System.Collections;
 
-namespace OVR
-{
-
 /*
 -----------------------
 SoundFXRef
@@ -140,5 +137,3 @@ public class SoundFXRef {
 		soundFX.DetachFromParent();
 	}
 }
-
-} // namespace OVR

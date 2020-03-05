@@ -18,44 +18,44 @@ namespace OculusSampleFramework
     public class DistanceGrabberSample : MonoBehaviour
     {
 
-        bool useSpherecast = false;
-        bool allowGrabThroughWalls = false;
+        bool m_useSpherecast = false;
 
         public bool UseSpherecast
         {
-            get { return useSpherecast; }
+            get { return m_useSpherecast; }
             set
             {
-                useSpherecast = value;
+                m_useSpherecast = value;
                 for (int i = 0; i < m_grabbers.Length; ++i)
                 {
-                    m_grabbers[i].UseSpherecast = useSpherecast;
+                    m_grabbers[i].UseSpherecast = m_useSpherecast;
                 }
             }
         }
 
+        bool m_allowGrabThroughWalls = false;
         public bool AllowGrabThroughWalls
         {
-            get { return allowGrabThroughWalls; }
+            get { return m_allowGrabThroughWalls; }
             set
             {
-                allowGrabThroughWalls = value;
+                m_allowGrabThroughWalls = value;
                 for (int i = 0; i < m_grabbers.Length; ++i)
                 {
-                    m_grabbers[i].m_preventGrabThroughWalls = !allowGrabThroughWalls;
+                    m_grabbers[i].m_preventGrabThroughWalls = !m_allowGrabThroughWalls;
                 }
             }
         }
 
         [SerializeField]
-        DistanceGrabber[] m_grabbers = null;
+        DistanceGrabber[] m_grabbers;
 
         // Use this for initialization
         void Start()
         {
             DebugUIBuilder.instance.AddLabel("Distance Grab Sample");
-            DebugUIBuilder.instance.AddToggle("Use Spherecasting", ToggleSphereCasting, useSpherecast);
-            DebugUIBuilder.instance.AddToggle("Grab Through Walls", ToggleGrabThroughWalls, allowGrabThroughWalls);
+            DebugUIBuilder.instance.AddToggle("Use Spherecasting", ToggleSphereCasting, m_useSpherecast);
+            DebugUIBuilder.instance.AddToggle("Grab Through Walls", ToggleGrabThroughWalls, m_allowGrabThroughWalls);
             DebugUIBuilder.instance.Show();
         }
 

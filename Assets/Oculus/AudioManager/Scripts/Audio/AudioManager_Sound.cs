@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-namespace OVR
-{
-
 //-------------------------------------------------------------------------
 // Types
 //-------------------------------------------------------------------------
@@ -783,5 +780,3 @@ public partial class AudioManager : MonoBehaviour {
 	}
 
 }
-
-} // namespace OVR

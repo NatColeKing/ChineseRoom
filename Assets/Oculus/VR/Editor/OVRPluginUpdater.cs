@@ -106,8 +106,6 @@ class OVRPluginUpdater
 	private static bool unityVersionSupportsAndroidUniversal = false;
 	private static bool enableAndroidUniversalSupport = true;
 
-	private static System.Version invalidVersion = new System.Version("0.0.0");
-
 	static OVRPluginUpdater()
 	{
 		EditorApplication.delayCall += OnDelayCall;
@@ -122,8 +120,9 @@ class OVRPluginUpdater
  
 		if (enableAndroidUniversalSupport)
 		{
-#if UNITY_2018_3_OR_NEWER
-			unityVersionSupportsAndroidUniversal = true;
+#if UNITY_2018_1_OR_NEWER
+			// Temporarily disable the AndroidUniversal plugin because of a plugin copying error in Unity
+			unityVersionSupportsAndroidUniversal = false;
 #endif
 		}
 
@@ -237,6 +236,7 @@ class OVRPluginUpdater
 
 	private static System.Version GetPluginVersion(string path)
 	{
+		System.Version invalidVersion = new System.Version("0.0.0");
 		System.Version pluginVersion = invalidVersion;
 
 		try
@@ -271,12 +271,6 @@ class OVRPluginUpdater
 		}
 
 		return pluginVersion;
-	}
-
-	public static string GetVersionDescription(System.Version version)
-	{
-		bool isVersionValid = (version != invalidVersion);
-		return isVersionValid ? version.ToString() : "(Unknown)";
 	}
 
 	private static bool ShouldAttemptPluginUpdate()
@@ -355,13 +349,11 @@ class OVRPluginUpdater
 				{
 					case PluginPlatform.Android:
 						pi.SetCompatibleWithPlatform(BuildTarget.Android, !unityVersionSupportsAndroidUniversal);
-						if (!unityVersionSupportsAndroidUniversal)
-						{
-							pi.SetPlatformData(BuildTarget.Android, "CPU", "ARMv7");
-						}
+						pi.SetPlatformData(BuildTarget.Android, "CPU", "ARMv7");
 						break;
 					case PluginPlatform.AndroidUniversal:
 						pi.SetCompatibleWithPlatform(BuildTarget.Android, unityVersionSupportsAndroidUniversal);
+						pi.SetPlatformData(BuildTarget.Android, "CPU", "ARM64");
 						break;
 					case PluginPlatform.OSXUniversal:
 #if UNITY_2017_3_OR_NEWER
@@ -417,7 +409,7 @@ class OVRPluginUpdater
 		}
 	}
 
-	[MenuItem("Oculus/Tools/Disable OVR Utilities Plugin")]
+	[MenuItem("Tools/Oculus/Disable OVR Utilities Plugin")]
 	private static void AttemptPluginDisable()
 	{
 		PluginPackage bundledPluginPkg = GetBundledPluginPackage();
@@ -439,21 +431,13 @@ class OVRPluginUpdater
 		if (enabledUtilsPluginPkg == null)
 		{
 			if (unityRunningInBatchmode
-#if UNITY_2018_3_OR_NEWER
-				|| EditorUtility.DisplayDialog("Disable Oculus Utilities Plugin",
-					"The OVRPlugin included with Oculus Utilities is already disabled."
-						+ " The OVRPlugin installed through the Package Manager will continue to be used.\n",
-					"Ok",
-					""))
-#else
 				|| EditorUtility.DisplayDialog("Disable Oculus Utilities Plugin",
 					"The OVRPlugin included with Oculus Utilities is already disabled."
 						+ " The OVRPlugin bundled with the Unity Editor will continue to be used.\n\n"
 						+ "Bundled version: "
-						+ GetVersionDescription(bundledPluginPkg.Version),
+						+ bundledPluginPkg.Version,
 					"Ok",
 					""))
-#endif
 			{
 				return;
 			}
@@ -461,42 +445,23 @@ class OVRPluginUpdater
 		else
 		{
 			if (unityRunningInBatchmode
-#if UNITY_2018_3_OR_NEWER
-				|| EditorUtility.DisplayDialog("Disable Oculus Utilities Plugin",
-					"Do you want to disable the OVRPlugin included with Oculus Utilities and revert to the OVRPlugin installed through the Package Manager?\n\n"
-						+ "Current version: " + GetVersionDescription(enabledUtilsPluginPkg.Version),
-					"Yes",
-					"No"))
-#else
 				|| EditorUtility.DisplayDialog("Disable Oculus Utilities Plugin",
 					"Do you want to disable the OVRPlugin included with Oculus Utilities and revert to the OVRPlugin bundled with the Unity Editor?\n\n"
-						+ "Current version: " + GetVersionDescription(enabledUtilsPluginPkg.Version)
-						+ "\nBundled version: " + GetVersionDescription(bundledPluginPkg.Version),
+						+ "Current version: " + enabledUtilsPluginPkg.Version
+						+ "\nBundled version: " + bundledPluginPkg.Version,
 					"Yes",
 					"No"))
-#endif
 			{
 				DisableAllUtilitiesPluginPackages();
 
 				if (unityRunningInBatchmode
-#if UNITY_2018_3_OR_NEWER
-					|| EditorUtility.DisplayDialog("Restart Unity",
-						"Now you will be using the OVRPlugin installed through Package Manager."
-							+ "\n\nPlease restart the Unity Editor to complete the update process.",
-						"Restart",
-						"Not Now"))
-#else
 					|| EditorUtility.DisplayDialog("Restart Unity",
 						"OVRPlugin has been updated to "
-							+ GetVersionDescription(bundledPluginPkg.Version)
+							+ bundledPluginPkg.Version
 							+ ".\n\nPlease restart the Unity Editor to complete the update process."
-#if !UNITY_2017_1_OR_NEWER
-							+ " You may need to manually relaunch Unity if you are using Unity 5.6 and higher."
-#endif
-							,
+							+ " You may need to manually relaunch Unity if you are using Unity 5.6 and higher.",
 						"Restart",
 						"Not Now"))
-#endif
 				{
 					RestartUnityEditor();
 				}
@@ -504,7 +469,7 @@ class OVRPluginUpdater
 		}
 	}
 
-	[MenuItem("Oculus/Tools/Update OVR Utilities Plugin")]
+	[MenuItem("Tools/Oculus/Update OVR Utilities Plugin")]
 	private static void RunPluginUpdate()
 	{
 		autoUpdateEnabled = true;
@@ -572,20 +537,12 @@ class OVRPluginUpdater
 		{
 			if (!triggeredByAutoUpdate && !unityRunningInBatchmode)
 			{
-#if UNITY_2018_3_OR_NEWER
 				EditorUtility.DisplayDialog("Update Oculus Utilities Plugin",
 					"OVRPlugin is already up to date.\n\nCurrent version: "
-						+ GetVersionDescription(currentPluginPkg.Version),
+						+ currentPluginPkg.Version + "\nBundled version: "
+						+ bundledPluginPkg.Version,
 					"Ok",
 					"");
-#else
-				EditorUtility.DisplayDialog("Update Oculus Utilities Plugin",
-					"OVRPlugin is already up to date.\n\nCurrent version: "
-						+ GetVersionDescription(currentPluginPkg.Version) + "\nBundled version: "
-						+ GetVersionDescription(bundledPluginPkg.Version),
-					"Ok",
-					"");
-#endif
 			}
 
 			return; // No update necessary.
@@ -604,7 +561,7 @@ class OVRPluginUpdater
 			string dialogBody = "Oculus Utilities has detected that a newer OVRPlugin is available."
 				+ " Using the newest version is recommended. Do you want to enable it?\n\n"
 				+ "Current version: "
-				+ GetVersionDescription(currentPluginPkg.Version)
+				+ currentPluginPkg.Version
 				+ "\nAvailable version: "
 				+ targetVersion;
 
@@ -612,7 +569,7 @@ class OVRPluginUpdater
 			{
 				dialogBody = "Oculus Utilities has detected a configuration change that requires re-enabling the current OVRPlugin."
 					+ " Do you want to proceed?\n\nCurrent version: "
-					+ GetVersionDescription(currentPluginPkg.Version);
+					+ currentPluginPkg.Version;
 			}
 
 			int dialogResult = EditorUtility.DisplayDialogComplex("Update Oculus Utilities Plugin", dialogBody, "Yes", "No, Don't Ask Again", "No");
@@ -627,7 +584,7 @@ class OVRPluginUpdater
 
 					EditorUtility.DisplayDialog("Oculus Utilities OVRPlugin",
 						"To manually update in the future, use the following menu option:\n\n"
-							+ "[Oculus -> Tools -> Update OVR Utilities Plugin]",
+							+ "[Tools -> Oculus -> Update OVR Utilities Plugin]",
 						"Ok",
 						"");
 					return;
@@ -648,12 +605,9 @@ class OVRPluginUpdater
 			if (unityRunningInBatchmode
 				|| EditorUtility.DisplayDialog("Restart Unity",
 					"OVRPlugin has been updated to "
-						+ GetVersionDescription(targetPluginPkg.Version)
+						+ targetPluginPkg.Version
 						+ ".\n\nPlease restart the Unity Editor to complete the update process."
-#if !UNITY_2017_1_OR_NEWER
-						+ " You may need to manually relaunch Unity if you are using Unity 5.6 and higher."
-#endif
-						,
+						+ " You may need to manually relaunch Unity if you are using Unity 5.6 and higher.",
 					"Restart",
 					"Not Now"))
 			{

@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEngine.Audio;
 using System.Collections;
 
-namespace OVR
-{
-
 /*
 -----------------------
  
@@ -429,5 +426,3 @@ public class SoundEmitter : MonoBehaviour {
 		state = FadeState.Null;
 	}		
 }
-
-} // namespace OVR

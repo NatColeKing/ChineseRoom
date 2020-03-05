@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
-namespace OVR
-{
-
 /*
 -----------------------
 
@@ -63,4 +60,3 @@ public class OSPPropsPropertyDrawer : PropertyDrawer {
 
 }
 
-} // namespace OVR

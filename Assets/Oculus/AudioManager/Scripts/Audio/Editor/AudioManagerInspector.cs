@@ -2,9 +2,6 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
-namespace OVR
-{
-
 /*
 -----------------------
  
@@ -627,5 +624,3 @@ public class AudioManagerInspector : Editor {
 	}
 
 }
-
-} // namespace OVR

@@ -1,9 +1,6 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-namespace OVR
-{
-
 public enum SoundFXNext {
 	Random = 0,
 	Sequential = 1,
@@ -307,5 +304,3 @@ public class SoundFX {
 		}
 	}
 }
-
-} // namespace OVR

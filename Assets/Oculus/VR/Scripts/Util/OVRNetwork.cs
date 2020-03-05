@@ -90,13 +90,12 @@ public class OVRNetwork
 				return;
 			}
 
-			IPAddress localAddr = IPAddress.Any;
+			IPAddress localAddr = IPAddress.Parse("127.0.0.1");
 
 			tcpListener = new TcpListener(localAddr, listeningPort);
 			try
 			{
 				tcpListener.Start();
-				Debug.LogFormat("TcpListener started. Local endpoint: {0}", tcpListener.LocalEndpoint.ToString());
 			}
 			catch (SocketException e)
 			{
@@ -109,15 +108,6 @@ public class OVRNetwork
 			if (tcpListener != null)
 			{
 				Debug.LogFormat("[OVRNetworkTcpServer] Start Listening on port {0}", listeningPort);
-
-				try
-				{
-					tcpListener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), tcpListener);
-				}
-				catch (Exception e)
-				{
-					Debug.LogWarningFormat("[OVRNetworkTcpServer] can't accept new client: {0}", e.Message);
-				}
 			}
 		}
 
@@ -139,34 +129,31 @@ public class OVRNetwork
 			Debug.Log("[OVRNetworkTcpServer] Stopped listening");
 		}
 
-		private void DoAcceptTcpClientCallback(IAsyncResult ar)
+		public void Tick()
 		{
-			TcpListener listener = ar.AsyncState as TcpListener;
+			if (tcpListener == null)
+			{
+				return;
+			}
+
 			try
 			{
-				TcpClient client = listener.EndAcceptTcpClient(ar);
-				lock (clientsLock)
-				{
-					clients.Add(client);
-					Debug.Log("[OVRNetworkTcpServer] client added");
-				}
-
-				try
-				{
-					tcpListener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), tcpListener);
-				}
-				catch (Exception e)
-				{
-					Debug.LogWarningFormat("[OVRNetworkTcpServer] can't accept new client: {0}", e.Message);
-				}
-			}
-			catch (ObjectDisposedException)
-			{
-				// Do nothing. It happens when stop preview in editor, which is normal behavior.
+				tcpListener.BeginAcceptTcpClient(new AsyncCallback(DoAcceptTcpClientCallback), tcpListener);
 			}
 			catch (Exception e)
 			{
-				Debug.LogWarningFormat("[OVRNetworkTcpServer] EndAcceptTcpClient failed: {0}", e.Message);
+				Debug.LogWarningFormat("[OVRNetworkTcpServer] can't accept new client: {0}", e.Message);
+			}
+		}
+
+		private void DoAcceptTcpClientCallback(IAsyncResult ar)
+		{
+			TcpListener listener = ar.AsyncState as TcpListener;
+			TcpClient client = listener.EndAcceptTcpClient(ar);
+			lock (clientsLock)
+			{
+				clients.Add(client);
+				Debug.Log("[OVRNetworkTcpServer] client added");
 			}
 		}
 
